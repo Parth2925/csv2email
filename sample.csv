@@ -1,0 +1,4 @@
+Date and time data displayed in UTC-0,,,,,,,,,,,
+Common Name,SANs (DNS),SANs (IP),Days To Expiration,Serial Number,Valid From,Valid To,Organization,Organizational Unit,Contact,Issuer,Nickname
+fed-sign6.egroup.com,fed-sign6.egroup.com,,8,03682D200443AD87DA03A2EBE3B95416,7/9/2020,7/10/2022,ABC Group,IAM,AD+ABC ADPROD: IAWAlerts,"DigiCert SHA2 Secure Server CA, DigiCert Inc,US",fed-sign6
+fed-sign7.egroup.com,fed-sign7.egroup.com,,9,13682D200443AD87DA03A2EBE3B95416,8/9/2020,8/10/2022,ABC Group,IAM,AD+ABC ADPROD: IAWAlerts,"DigiCert SHA2 Secure Server CA, DigiCert Inc,US",fed-sign7
