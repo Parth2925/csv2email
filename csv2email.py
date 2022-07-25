@@ -6,6 +6,7 @@ import os
 
 email_content_template = '''\
 Subject: IAMPEXMYACYB-IAM CERT EXPIRY NOTIFICATION
+
 Account Name: {{acname}} {0} {{/acname}}
 Application Name: {{apname}} {{/apname}}
 Directory: {{directory}} {{/directory}}
@@ -17,6 +18,14 @@ Password Object: {{passobj}} {{/passobj}}
 Safe: {{safe}} {{/safe}}
 Device User Name: {{dun}} {{/dun}}
 System: {{system}} Venafi {{/system}}
+'''
+
+
+report_message_template = '''\
+Subject: CVS2EMAIL Report
+
+cvs2email run: {0}!
+Total sent email Count: {1}
 '''
 
 
@@ -32,7 +41,7 @@ def set_logging():
     return logger
 
 
-def send_email_to_generate_ticket(smtp_server_domain, from_addr, password, to_addr, csv_file_path):
+def send_email_to_generate_ticket(smtp_server_domain, from_addr, password, to_addr, csv_file_path, report_addr):
     csv_row_values = read_csv_file(csv_file_path)
     counter = 0
     log.info('Sending emails...')
@@ -42,9 +51,21 @@ def send_email_to_generate_ticket(smtp_server_domain, from_addr, password, to_ad
         counter = send_email(smtp_server_domain, from_addr, password, to_addr, email_data, counter)
     log.info('Process completed!')
     log.info(f'Total Emails Sent: {counter}')
+    if counter is not None:
+        log.info(f'Sending report email...')
+        script_status = 'SUCCESSFUL'
+        report_msg = report_message_template.format(script_status, counter)
+        send_email(smtp_server_domain, from_addr, password, report_addr, report_msg)
+        log.info(f'Successfully sent report email to {report_addr}')
+    else:
+        log.info(f'Sending report email...')
+        script_status = 'FAILED'
+        report_msg = report_message_template.format(script_status, counter)
+        send_email(smtp_server_domain, from_addr, password, report_addr, report_msg)
+        log.info(f'Could not send email to {report_addr}')
 
 
-def send_email(smtp_server_domain, from_addr, password, to_addr, email_data, count):
+def send_email(smtp_server_domain, from_addr, password, to_addr, email_data, count=0):
     try:
         with smtplib.SMTP_SSL(smtp_server_domain, timeout=15) as server:
             server.login(from_addr, password)
@@ -68,7 +89,6 @@ def read_csv_file(csv_file_path):
                 csv_rows_list.append(values)
             log.info(f'{csv_file_path} Loaded.')
             return csv_rows_list
-
     except FileNotFoundError:
         log.error(csv_file_path + " not found.")
 
@@ -79,5 +99,6 @@ if __name__ == '__main__':
     from_addr = 'sender@email.com'
     password = ''
     to_addr = 'receiver@email.com'
+    report_addr = 'reporter@email.com'
     csv_file_path = 'sample.csv'
-    send_email_to_generate_ticket(smtp_server_domain, from_addr, password, to_addr, csv_file_path)
+    send_email_to_generate_ticket(smtp_server_domain, from_addr, password, to_addr, csv_file_path, report_addr)
